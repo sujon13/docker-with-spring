@@ -1,28 +1,27 @@
-FROM gradle:8.2.1-jdk17-alpine
-# AS build
+#build phase
+FROM gradle:8.2.1-jdk17-alpine AS build
 
-WORKDIR /app/rabbit-mq
+WORKDIR /app/build/docker-with-spring
 
-COPY build.gradle settings.gradle /app/rabbit-mq/
+COPY build.gradle settings.gradle /app/build/docker-with-spring/
 
 RUN gradle clean build --no-daemon > /dev/null 2>&1 || true
 
-COPY . /app/rabbit-mq
+COPY . /app/build/docker-with-spring
 
 RUN gradle clean build -x test --no-daemon
 
 
-# FROM eclipse-temurin:17-jdk
+# run phase
+FROM eclipse-temurin:17-jdk
 
-ARG JAR_FILE=nbr-0.1.jar
+ARG JAR_FILE=docker-with-spring-0.0.1-SNAPSHOT.jar
 
-RUN mkdir /rabbit-mq
+RUN mkdir /docker-with-spring
 
-WORKDIR /rabbit-mq
+WORKDIR /docker-with-spring
 
-# COPY --from=build /app/rabbit-mq/build/libs/${JAR_FILE} /rabbit-mq/app.jar
-
-COPY /app/rabbit-mq/build/libs/${JAR_FILE} /rabbit-mq/app.jar
+COPY --from=build /app/build/docker-with-spring/build/libs/${JAR_FILE} /docker-with-spring/app.jar
 
 ENTRYPOINT ["java","-jar","app.jar"]
 
