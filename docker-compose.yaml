@@ -1,0 +1,15 @@
+version: "1.1"
+
+services:
+  caller-service:
+    build: .
+    image: "docker-with-spring:1.1"
+    ports:
+      - 9004:9004
+    depends_on:
+      - api-service
+
+  api-service:
+    image: "sujon13/rest-api-for-docker:latest"
+    ports:
+      - 9005:9005
